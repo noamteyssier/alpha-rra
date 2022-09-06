@@ -1,7 +1,7 @@
 use alpha_rra::alpha_rra;
 use clap::Parser;
 use anyhow::Result;
-use adjustp::{adjust, Procedure};
+use adjustp::Procedure;
 
 mod io;
 use io::Input;
@@ -37,19 +37,18 @@ fn main() -> Result<()> {
         _ => panic!("Unexpected correction method provided: {}", args.correction)
     };
 
-    let (unique_genes, scores, pvalues) = alpha_rra(
+    let results = alpha_rra(
         input.pvalues(), 
         input.genes(), 
         args.alpha, 
-        args.permutations
+        args.permutations,
+        correction
     );
 
-    let fdr = adjust(&pvalues.as_slice().unwrap(), correction);
-
-    println!("{:?}", unique_genes);
-    println!("{:?}", scores);
-    println!("{:?}", pvalues);
-    println!("{:?}", fdr);
+    println!("{:?}", results.names());
+    println!("{:?}", results.scores());
+    println!("{:?}", results.pvalues());
+    println!("{:?}", results.adj_pvalues());
 
     Ok(())
 }

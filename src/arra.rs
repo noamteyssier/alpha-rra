@@ -1,5 +1,8 @@
+use adjustp::Procedure;
 use hashbrown::HashMap;
 use ndarray::Array1;
+use crate::ResultsRRA;
+
 use super::{
     normed_ranks, group_sizes, 
     permutations::run_permutations, filter_alpha, 
@@ -31,7 +34,8 @@ pub fn alpha_rra(
     pvalues: &Array1<f64>,
     genes: &Vec<String>,
     alpha: f64,
-    npermutations: usize) -> (Vec<String>, Array1<f64>, Array1<f64>)
+    npermutations: usize,
+    correction: Procedure) -> ResultsRRA
 {
     let (encode_map, encode) = encode_index(genes);
     let n_genes = encode_map.len();
@@ -54,9 +58,10 @@ pub fn alpha_rra(
         .map(|curr| encode_map.get(&curr).expect("Unexpected missing index").clone())
         .collect();
 
-    (
+    ResultsRRA::new(
         names, 
-        Array1::from_vec(scores),
-        Array1::from_vec(pvalues)
+        scores,
+        pvalues,
+        correction
     )
 }
