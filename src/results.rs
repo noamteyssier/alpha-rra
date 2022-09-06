@@ -1,5 +1,7 @@
 use adjustp::{Procedure, adjust};
 
+type EntryRRA<'a> = (&'a String, f64, f64, f64);
+
 /// Handles the results of an Alpha-RRA run
 pub struct ResultsRRA {
     names: Vec<String>,
@@ -37,4 +39,15 @@ impl ResultsRRA {
     pub fn adj_pvalues(&self) -> &Vec<f64> {
         &self.adj_pvalues
     }
+
+    pub fn zip<'a>(&'a self) -> impl Iterator<Item = EntryRRA<'a>> {
+        (0..self.names.len())
+            .map(|ix| {(
+                &self.names[ix],
+                self.scores[ix],
+                self.pvalues[ix],
+                self.adj_pvalues[ix]
+            )})
+    }
 }
+
