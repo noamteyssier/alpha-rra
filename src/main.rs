@@ -1,11 +1,10 @@
-use std::io::stdout;
 use alpha_rra::alpha_rra;
 use clap::Parser;
 use anyhow::Result;
 use adjustp::Procedure;
 
 mod io;
-use io::Input;
+use io::{Input, match_writer};
 
 use crate::io::write_lines;
 
