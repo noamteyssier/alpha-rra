@@ -16,6 +16,10 @@ struct Args {
     #[clap(short, long, value_parser)]
     input: String,
 
+    /// Filepath for results table
+    #[clap(short, long, value_parser, default_value="")]
+    output: String,
+
     /// Permutations
     #[clap(short, long, value_parser, default_value="100")]
     permutations: usize,
