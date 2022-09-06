@@ -1,3 +1,4 @@
+use std::io::stdout;
 use alpha_rra::alpha_rra;
 use clap::Parser;
 use anyhow::Result;
@@ -5,6 +6,8 @@ use adjustp::Procedure;
 
 mod io;
 use io::Input;
+
+use crate::io::write_lines;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -45,10 +48,8 @@ fn main() -> Result<()> {
         correction
     );
 
-    println!("{:?}", results.names());
-    println!("{:?}", results.scores());
-    println!("{:?}", results.pvalues());
-    println!("{:?}", results.adj_pvalues());
+    let mut output = Box::new(stdout());
+    write_lines(&mut output, &results)?;
 
     Ok(())
 }
