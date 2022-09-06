@@ -36,6 +36,7 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
     let input = Input::from_path(&args.input)?;
+    let mut writer = match_writer(&args.output);
     let correction = match args.correction.as_str() {
         "bonferroni" => Procedure::Bonferroni,
         "bh" | "fdr" => Procedure::BenjaminiHochberg,
@@ -51,8 +52,7 @@ fn main() -> Result<()> {
         correction
     );
 
-    let mut output = Box::new(stdout());
-    write_lines(&mut output, &results)?;
+    write_lines(&mut writer, &results)?;
 
     Ok(())
 }
