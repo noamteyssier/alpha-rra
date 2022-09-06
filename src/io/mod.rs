@@ -2,4 +2,4 @@ pub mod input;
 pub mod output;
 
 pub use input::Input;
-pub use output::write_lines;
+pub use output::{write_lines, match_writer};

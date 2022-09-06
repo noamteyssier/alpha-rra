@@ -1,11 +1,10 @@
-use std::io::stdout;
 use alpha_rra::alpha_rra;
 use clap::Parser;
 use anyhow::Result;
 use adjustp::Procedure;
 
 mod io;
-use io::Input;
+use io::{Input, match_writer};
 
 use crate::io::write_lines;
 
@@ -16,6 +15,10 @@ struct Args {
     /// Filepath of the input count matrix
     #[clap(short, long, value_parser)]
     input: String,
+
+    /// Filepath for results table
+    #[clap(short, long, value_parser, default_value="")]
+    output: String,
 
     /// Permutations
     #[clap(short, long, value_parser, default_value="100")]
@@ -33,6 +36,7 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
     let input = Input::from_path(&args.input)?;
+    let mut writer = match_writer(&args.output);
     let correction = match args.correction.as_str() {
         "bonferroni" => Procedure::Bonferroni,
         "bh" | "fdr" => Procedure::BenjaminiHochberg,
@@ -48,8 +52,7 @@ fn main() -> Result<()> {
         correction
     );
 
-    let mut output = Box::new(stdout());
-    write_lines(&mut output, &results)?;
+    write_lines(&mut writer, &results)?;
 
     Ok(())
 }
