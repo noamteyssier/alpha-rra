@@ -113,8 +113,11 @@ pub fn alpha_rra(
     // group the sizes of the gene sets
     let sizes = group_sizes(&encode);
 
+    // set the number of permutations
+    let num_permutations = npermutations * n_genes;
+
     // calculate rra scores for a vector of random samplings for each unique size
-    let permutation_vectors = generate_permutation_vectors(n_genes, alpha, npermutations, &sizes);
+    let permutation_vectors = generate_permutation_vectors(n_genes, alpha, num_permutations, &sizes);
 
     // calculate empirical pvalues for each of the gene sets given the random nulls
     let (scores, pvalues) =
