@@ -13,7 +13,8 @@ pub struct ResultsRRA {
 
 impl ResultsRRA {
     /// Creates a new instance
-    #[must_use] pub fn new(
+    #[must_use]
+    pub fn new(
         names: Vec<String>,
         scores: Vec<f64>,
         pvalues: Vec<f64>,
@@ -28,22 +29,26 @@ impl ResultsRRA {
     }
 
     /// Gets the internal names
-    #[must_use] pub fn names(&self) -> &Vec<String> {
+    #[must_use]
+    pub fn names(&self) -> &Vec<String> {
         &self.names
     }
 
     /// Gets the internal scores
-    #[must_use] pub fn scores(&self) -> &Vec<f64> {
+    #[must_use]
+    pub fn scores(&self) -> &Vec<f64> {
         &self.scores
     }
 
     /// Gets the internal pvalues
-    #[must_use] pub fn pvalues(&self) -> &Vec<f64> {
+    #[must_use]
+    pub fn pvalues(&self) -> &Vec<f64> {
         &self.pvalues
     }
 
     /// Gets the internal adjusted pvalues
-    #[must_use] pub fn adj_pvalues(&self) -> &Vec<f64> {
+    #[must_use]
+    pub fn adj_pvalues(&self) -> &Vec<f64> {
         &self.adj_pvalues
     }
 

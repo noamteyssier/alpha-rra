@@ -1,4 +1,4 @@
-use crate::{ResultsRRA, utils::recode_index};
+use crate::{utils::recode_index, ResultsRRA};
 use adjustp::Procedure;
 use hashbrown::HashMap;
 use ndarray::Array1;
@@ -44,14 +44,14 @@ fn gene_rra(
 }
 
 /// Performs the alpha-RRA algorithm
-#[must_use] pub fn alpha_rra(
+#[must_use]
+pub fn alpha_rra(
     pvalues: &Array1<f64>,
     genes: &Vec<String>,
     alpha: f64,
     npermutations: usize,
     correction: Procedure,
 ) -> ResultsRRA {
-
     // encode the gene names
     let (encode_map, encode) = encode_index(genes);
     let n_genes = encode_map.len();

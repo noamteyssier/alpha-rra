@@ -2,7 +2,8 @@ use ndarray::Array1;
 use statrs::distribution::{Beta, ContinuousCDF};
 
 /// Sorts the rank array in ascending order
-#[must_use] pub fn sort_array(array: &Array1<f64>) -> Array1<f64> {
+#[must_use]
+pub fn sort_array(array: &Array1<f64>) -> Array1<f64> {
     let mut vec = array.to_vec();
     vec.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
     Array1::from_vec(vec)

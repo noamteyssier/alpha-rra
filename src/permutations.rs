@@ -28,7 +28,8 @@ fn sample_normed_ranks(num_ranks: usize, num_samples: usize) -> Array1<f64> {
 ///
 /// # Returns
 /// A vector of the robust rank aggregation values
-#[must_use] pub fn run_permutations(
+#[must_use]
+pub fn run_permutations(
     num_ranks: usize,
     alpha: f64,
     npermutations: usize,
