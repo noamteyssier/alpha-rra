@@ -1,7 +1,7 @@
-use ndarray_rand::{rand_distr::Uniform, RandomExt};
-use ndarray::Array1;
-use rayon::prelude::*;
 use super::{filter_alpha, robust_rank_aggregation};
+use ndarray::Array1;
+use ndarray_rand::{rand_distr::Uniform, RandomExt};
+use rayon::prelude::*;
 
 /// Sample a vector of normalized ranks given the number of ranks and the number of samples
 ///
@@ -11,11 +11,8 @@ use super::{filter_alpha, robust_rank_aggregation};
 ///
 /// # Returns
 /// A vector of normalized ranks
-fn sample_normed_ranks(
-    num_ranks: usize,
-    num_samples: usize) -> Array1<f64>
-{
-    Array1::random((num_samples,), Uniform::new(1usize, num_ranks+1))
+fn sample_normed_ranks(num_ranks: usize, num_samples: usize) -> Array1<f64> {
+    Array1::random((num_samples,), Uniform::new(1usize, num_ranks + 1))
         .iter()
         .map(|x| *x as f64 / num_ranks as f64)
         .collect()
@@ -35,8 +32,8 @@ pub fn run_permutations(
     num_ranks: usize,
     alpha: f64,
     npermutations: usize,
-    unique_size: usize) -> Vec<f64>
-{
+    unique_size: usize,
+) -> Vec<f64> {
     (0..npermutations)
         .into_par_iter()
         .map(|_| sample_normed_ranks(num_ranks, unique_size))
@@ -47,14 +44,14 @@ pub fn run_permutations(
 
 #[cfg(test)]
 mod testing {
+    use super::run_permutations;
+    use ndarray::Array1;
     use ndarray_rand::rand_distr::Uniform;
     use ndarray_rand::RandomExt;
-    use ndarray::Array1;
     use statrs::statistics::Statistics;
-    use super::run_permutations;
 
     #[test]
-    fn test_run(){
+    fn test_run() {
         let unique_size = 5;
         let num_samples = 100;
         let alpha = 0.3;
