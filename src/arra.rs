@@ -117,7 +117,8 @@ pub fn alpha_rra(
     let permutation_vectors = generate_permutation_vectors(n_genes, alpha, npermutations, &sizes);
 
     // calculate empirical pvalues for each of the gene sets given the random nulls
-    let (scores, pvalues) = calculate_empirical_pvalues(n_genes, &encode, &nranks, &permutation_vectors, alpha);
+    let (scores, pvalues) =
+        calculate_empirical_pvalues(n_genes, &encode, &nranks, &permutation_vectors, alpha);
 
     // recode the gene names
     let names = recode_index(n_genes, &encode_map);
