@@ -1,4 +1,4 @@
-use adjustp::{Procedure, adjust};
+use adjustp::{adjust, Procedure};
 
 type EntryRRA<'a> = (&'a String, f64, f64, f64);
 
@@ -7,16 +7,22 @@ pub struct ResultsRRA {
     names: Vec<String>,
     scores: Vec<f64>,
     pvalues: Vec<f64>,
-    adj_pvalues: Vec<f64>
+    adj_pvalues: Vec<f64>,
 }
 
 impl ResultsRRA {
-
     /// Creates a new instance
-    pub fn new(names: Vec<String>, scores: Vec<f64>, pvalues: Vec<f64>, correction: Procedure) -> Self {
+    pub fn new(
+        names: Vec<String>,
+        scores: Vec<f64>,
+        pvalues: Vec<f64>,
+        correction: Procedure,
+    ) -> Self {
         Self {
             adj_pvalues: adjust(&pvalues, correction),
-            names, scores, pvalues,
+            names,
+            scores,
+            pvalues,
         }
     }
 
@@ -41,13 +47,13 @@ impl ResultsRRA {
     }
 
     pub fn zip<'a>(&'a self) -> impl Iterator<Item = EntryRRA<'a>> {
-        (0..self.names.len())
-            .map(|ix| {(
+        (0..self.names.len()).map(|ix| {
+            (
                 &self.names[ix],
                 self.scores[ix],
                 self.pvalues[ix],
-                self.adj_pvalues[ix]
-            )})
+                self.adj_pvalues[ix],
+            )
+        })
     }
 }
-
