@@ -30,7 +30,7 @@ impl ResultsRRA {
 
     /// Gets the internal names
     #[must_use]
-    pub fn names(&self) -> &Vec<String> {
+    pub fn names(&self) -> &[String] {
         &self.names
     }
 
