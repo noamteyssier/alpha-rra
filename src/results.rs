@@ -13,6 +13,7 @@ pub struct ResultsRRA {
 
 impl ResultsRRA {
     /// Creates a new instance
+    #[must_use]
     pub fn new(
         names: Vec<String>,
         scores: Vec<f64>,
@@ -28,27 +29,31 @@ impl ResultsRRA {
     }
 
     /// Gets the internal names
+    #[must_use]
     pub fn names(&self) -> &Vec<String> {
         &self.names
     }
 
     /// Gets the internal scores
+    #[must_use]
     pub fn scores(&self) -> &Vec<f64> {
         &self.scores
     }
 
     /// Gets the internal pvalues
+    #[must_use]
     pub fn pvalues(&self) -> &Vec<f64> {
         &self.pvalues
     }
 
     /// Gets the internal adjusted pvalues
+    #[must_use]
     pub fn adj_pvalues(&self) -> &Vec<f64> {
         &self.adj_pvalues
     }
 
     /// zips the results into a single iterator
-    pub fn zip<'a>(&'a self) -> impl Iterator<Item = EntryRRA<'a>> {
+    pub fn zip(&self) -> impl Iterator<Item = EntryRRA> {
         (0..self.names.len()).map(|ix| {
             (
                 self.names[ix].as_str(),

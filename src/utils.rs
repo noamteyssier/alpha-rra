@@ -2,6 +2,7 @@ use hashbrown::{HashMap, HashSet};
 use ndarray::Array1;
 
 /// return the indices to sort a provided array of floats
+#[must_use]
 pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
     let mut order = Array1::range(0., array.len() as f64, 1.)
         .iter()
@@ -12,6 +13,7 @@ pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
 }
 
 /// Rank an array using a temporary argsort
+#[must_use]
 pub fn rank<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
     let order = argsort(array);
 
@@ -19,6 +21,7 @@ pub fn rank<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
 }
 
 /// return the normalized ranks of an array in place
+#[must_use]
 pub fn normed_ranks(array: &Array1<f64>) -> Array1<f64> {
     rank(array)
         .iter()
@@ -28,6 +31,7 @@ pub fn normed_ranks(array: &Array1<f64>) -> Array1<f64> {
 }
 
 /// returns a vector of unique group sizes within the gene sets
+#[must_use]
 pub fn group_sizes(array: &[usize]) -> Vec<usize> {
     let size_map = array.iter().fold(HashMap::new(), |mut map, x| {
         *map.entry(*x).or_insert(0) += 1usize;
@@ -45,10 +49,12 @@ pub fn group_sizes(array: &[usize]) -> Vec<usize> {
 }
 
 /// Returns the subarray which are below the provided alpha
+#[must_use]
 pub fn filter_alpha(array: &Array1<f64>, alpha: f64) -> Array1<f64> {
     array.iter().filter(|x| **x < alpha).copied().collect()
 }
 
+#[must_use]
 pub fn empirical_cdf(obs: f64, null: &Array1<f64>) -> f64 {
     let size = null.len();
     let count = null.iter().filter(|x| **x <= obs).count();
@@ -56,6 +62,7 @@ pub fn empirical_cdf(obs: f64, null: &Array1<f64>) -> f64 {
 }
 
 /// Converts a vector of strings to an integer representation
+#[must_use]
 pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>) {
     let mut total = 0usize;
     let mut map = HashMap::with_capacity(genes.len());
@@ -75,8 +82,17 @@ pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>)
     )
 }
 
+/// Recode the indices to the original gene names
+#[must_use]
+pub fn recode_index(n_genes: usize, map: &HashMap<usize, String>) -> Vec<String> {
+    (0..n_genes)
+        .map(|x| map.get(&x).expect("Unexpected missing index").clone())
+        .collect()
+}
+
 /// Select the ranks for a provided embedding. Essentially applies a filter which selects all ranks
 /// for the current gene index
+#[must_use]
 pub fn select_ranks(current_idx: usize, encodings: &[usize], ranks: &Array1<f64>) -> Array1<f64> {
     encodings
         .iter()
@@ -170,9 +186,20 @@ mod testing {
 
     #[test]
     fn test_empirical_cdf() {
-        let size = 100;
         let obs = 0.3;
-        let null = Array1::random((size,), Uniform::new(0., 1.));
-        empirical_cdf(obs, &null);
+        let null = Array1::range(0., 1., 0.01);
+        let cdf = empirical_cdf(obs, &null);
+        assert_eq!(cdf, 0.31683168316831684);
+    }
+
+    #[test]
+    fn test_recoding() {
+        let names = vec!["g.0", "g.1", "g.0", "g.2"]
+            .iter()
+            .map(|x| (*x).to_string())
+            .collect();
+        let (encode_map, _encoding) = encode_index(&names);
+        let recoded = super::recode_index(3, &encode_map);
+        assert_eq!(recoded, vec!["g.0", "g.1", "g.2"]);
     }
 }
