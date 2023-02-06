@@ -1,4 +1,4 @@
-use crate::ResultsRRA;
+use crate::{ResultsRRA, utils::recode_index};
 use adjustp::Procedure;
 use hashbrown::HashMap;
 use ndarray::Array1;
@@ -51,9 +51,15 @@ pub fn alpha_rra(
     npermutations: usize,
     correction: Procedure,
 ) -> ResultsRRA {
+
+    // encode the gene names
     let (encode_map, encode) = encode_index(genes);
     let n_genes = encode_map.len();
+
+    // calculate the normalized ranks
     let nranks = normed_ranks(pvalues);
+
+    // group the sizes of the gene sets
     let sizes = group_sizes(&encode);
 
     // calculate rra scores for a vector of random samplings for each unique size
@@ -73,14 +79,9 @@ pub fn alpha_rra(
         .map(|curr| gene_rra(curr, &encode, &nranks, &permutation_vectors, alpha))
         .unzip();
 
-    let names = (0..n_genes)
-        .map(|curr| {
-            encode_map
-                .get(&curr)
-                .expect("Unexpected missing index")
-                .clone()
-        })
-        .collect();
+    // recode the gene names
+    let names = recode_index(n_genes, &encode_map);
 
+    // return the results
     ResultsRRA::new(names, scores, pvalues, correction)
 }
