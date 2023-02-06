@@ -71,7 +71,6 @@ impl ResultsRRA {
 mod testing {
     use ndarray::array;
 
-
     #[test]
     fn test_results() {
         use super::*;
