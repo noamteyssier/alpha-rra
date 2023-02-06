@@ -83,6 +83,4 @@ mod testing {
         assert_eq!(iter.next(), Some(("b", 2.0, 0.2, 0.2)));
         assert_eq!(iter.next(), None);
     }
-
 }
-
