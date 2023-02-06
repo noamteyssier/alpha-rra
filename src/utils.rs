@@ -63,7 +63,7 @@ pub fn empirical_cdf(obs: f64, null: &Array1<f64>) -> f64 {
 
 /// Converts a vector of strings to an integer representation
 #[must_use]
-pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>) {
+pub fn encode_index(genes: &[String]) -> (HashMap<usize, String>, Vec<usize>) {
     let mut total = 0usize;
     let mut map = HashMap::with_capacity(genes.len());
     let mut encoding = Vec::with_capacity(genes.len());
@@ -116,7 +116,7 @@ mod testing {
         let names = vec!["g.0", "g.1", "g.0", "g.2"]
             .iter()
             .map(|x| (*x).to_string())
-            .collect();
+            .collect::<Vec<String>>();
         let (encode_map, encoding) = encode_index(&names);
         assert_eq!(encoding, vec![0, 1, 0, 2]);
         assert_eq!(encode_map.get(&0), Some(&"g.0".to_string()));
@@ -197,7 +197,7 @@ mod testing {
         let names = vec!["g.0", "g.1", "g.0", "g.2"]
             .iter()
             .map(|x| (*x).to_string())
-            .collect();
+            .collect::<Vec<String>>();
         let (encode_map, _encoding) = encode_index(&names);
         let recoded = super::recode_index(3, &encode_map);
         assert_eq!(recoded, vec!["g.0", "g.1", "g.2"]);

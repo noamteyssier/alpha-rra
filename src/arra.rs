@@ -98,7 +98,7 @@ fn calculate_empirical_pvalues(
 #[must_use]
 pub fn alpha_rra(
     pvalues: &Array1<f64>,
-    genes: &Vec<String>,
+    genes: &[String],
     alpha: f64,
     npermutations: usize,
     correction: Procedure,
