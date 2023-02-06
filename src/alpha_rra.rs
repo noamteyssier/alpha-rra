@@ -13,6 +13,16 @@ use super::{
 
 /// Calculates an empirical p-value of the robust rank aggregation for the current gene set with
 /// respect to random permutations of that size
+///
+/// # Arguments
+/// * `current_idx` - The current index (i.e. gene index)
+/// * `encodings` - The encodings (i.e. gene indices)
+/// * `nranks` - The normalized ranks
+/// * `permutation_vectors` - The permutation vectors
+/// * `alpha` - The alpha threshold value
+///
+/// # Returns
+/// A tuple of the score and the empirical p-value
 fn gene_rra(
     current_idx: usize,
     encodings: &[usize],
