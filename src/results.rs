@@ -48,7 +48,7 @@ impl ResultsRRA {
     }
 
     /// zips the results into a single iterator
-    pub fn zip<'a>(&'a self) -> impl Iterator<Item = EntryRRA<'a>> {
+    pub fn zip(&self) -> impl Iterator<Item = EntryRRA> {
         (0..self.names.len()).map(|ix| {
             (
                 self.names[ix].as_str(),
