@@ -2,7 +2,7 @@ use hashbrown::{HashMap, HashSet};
 use ndarray::Array1;
 
 /// return the indices to sort a provided array of floats
-pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
+#[must_use] pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
     let mut order = Array1::range(0., array.len() as f64, 1.)
         .iter()
         .map(|x| *x as usize)
@@ -12,14 +12,14 @@ pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
 }
 
 /// Rank an array using a temporary argsort
-pub fn rank<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
+#[must_use] pub fn rank<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
     let order = argsort(array);
 
     argsort(&order)
 }
 
 /// return the normalized ranks of an array in place
-pub fn normed_ranks(array: &Array1<f64>) -> Array1<f64> {
+#[must_use] pub fn normed_ranks(array: &Array1<f64>) -> Array1<f64> {
     rank(array)
         .iter()
         .map(|x| (x + 1) as f64)
@@ -28,7 +28,7 @@ pub fn normed_ranks(array: &Array1<f64>) -> Array1<f64> {
 }
 
 /// returns a vector of unique group sizes within the gene sets
-pub fn group_sizes(array: &[usize]) -> Vec<usize> {
+#[must_use] pub fn group_sizes(array: &[usize]) -> Vec<usize> {
     let size_map = array.iter().fold(HashMap::new(), |mut map, x| {
         *map.entry(*x).or_insert(0) += 1usize;
         map
@@ -45,18 +45,18 @@ pub fn group_sizes(array: &[usize]) -> Vec<usize> {
 }
 
 /// Returns the subarray which are below the provided alpha
-pub fn filter_alpha(array: &Array1<f64>, alpha: f64) -> Array1<f64> {
+#[must_use] pub fn filter_alpha(array: &Array1<f64>, alpha: f64) -> Array1<f64> {
     array.iter().filter(|x| **x < alpha).copied().collect()
 }
 
-pub fn empirical_cdf(obs: f64, null: &Array1<f64>) -> f64 {
+#[must_use] pub fn empirical_cdf(obs: f64, null: &Array1<f64>) -> f64 {
     let size = null.len();
     let count = null.iter().filter(|x| **x <= obs).count();
     (count + 1) as f64 / (size + 1) as f64
 }
 
 /// Converts a vector of strings to an integer representation
-pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>) {
+#[must_use] pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>) {
     let mut total = 0usize;
     let mut map = HashMap::with_capacity(genes.len());
     let mut encoding = Vec::with_capacity(genes.len());
@@ -76,7 +76,7 @@ pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>)
 }
 
 /// Recode the indices to the original gene names
-pub fn recode_index(n_genes: usize, map: &HashMap<usize, String>) -> Vec<String> {
+#[must_use] pub fn recode_index(n_genes: usize, map: &HashMap<usize, String>) -> Vec<String> {
     (0..n_genes)
         .map(|x| {
             map.get(&x)
@@ -88,7 +88,7 @@ pub fn recode_index(n_genes: usize, map: &HashMap<usize, String>) -> Vec<String>
 
 /// Select the ranks for a provided embedding. Essentially applies a filter which selects all ranks
 /// for the current gene index
-pub fn select_ranks(current_idx: usize, encodings: &[usize], ranks: &Array1<f64>) -> Array1<f64> {
+#[must_use] pub fn select_ranks(current_idx: usize, encodings: &[usize], ranks: &Array1<f64>) -> Array1<f64> {
     encodings
         .iter()
         .zip(ranks.iter())
