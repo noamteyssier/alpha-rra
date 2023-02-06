@@ -88,10 +88,15 @@ fn calculate_empirical_pvalues(
     nranks: &Array1<f64>,
     permutation_vectors: &HashMap<usize, Array1<f64>>,
     alpha: f64,
-) -> (Vec<f64>, Vec<f64>) {
-    (0..n_genes)
-        .map(|curr| gene_rra(curr, &encode, &nranks, &permutation_vectors, alpha))
-        .unzip()
+) -> (Array1<f64>, Array1<f64>) {
+    let mut scores = Array1::zeros(n_genes);
+    let mut pvalues = Array1::zeros(n_genes);
+    (0..n_genes).for_each(|curr| {
+        let (score, pvalue) = gene_rra(curr, &encode, &nranks, &permutation_vectors, alpha);
+        scores[curr] = score;
+        pvalues[curr] = pvalue;
+    });
+    (scores, pvalues)
 }
 
 /// Performs the alpha-RRA algorithm
@@ -117,7 +122,8 @@ pub fn alpha_rra(
     let num_permutations = npermutations * n_genes;
 
     // calculate rra scores for a vector of random samplings for each unique size
-    let permutation_vectors = generate_permutation_vectors(n_genes, alpha, num_permutations, &sizes);
+    let permutation_vectors =
+        generate_permutation_vectors(n_genes, alpha, num_permutations, &sizes);
 
     // calculate empirical pvalues for each of the gene sets given the random nulls
     let (scores, pvalues) =
