@@ -3,6 +3,14 @@ use ndarray::Array1;
 use rayon::prelude::*;
 use super::{filter_alpha, robust_rank_aggregation};
 
+/// Sample a vector of normalized ranks given the number of ranks and the number of samples
+///
+/// # Arguments
+/// * `num_ranks` - The number of ranks
+/// * `num_samples` - The number of samples
+///
+/// # Returns
+/// A vector of normalized ranks
 fn sample_normed_ranks(
     num_ranks: usize,
     num_samples: usize) -> Array1<f64>
@@ -13,6 +21,16 @@ fn sample_normed_ranks(
         .collect()
 }
 
+/// Perform the robust rank aggregation algorithm on a permuted set of normalized ranks
+///
+/// # Arguments
+/// * `num_ranks` - The number of ranks
+/// * `alpha` - The alpha value
+/// * `npermutations` - The number of permutations
+/// * `unique_size` - The number of unique values
+///
+/// # Returns
+/// A vector of the robust rank aggregation values
 pub fn run_permutations(
     num_ranks: usize,
     alpha: f64,
