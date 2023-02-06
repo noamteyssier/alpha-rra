@@ -75,6 +75,17 @@ pub fn encode_index(genes: &Vec<String>) -> (HashMap<usize, String>, Vec<usize>)
     )
 }
 
+/// Recode the indices to the original gene names
+pub fn recode_index(n_genes: usize, map: &HashMap<usize, String>) -> Vec<String> {
+    (0..n_genes)
+        .map(|x| {
+            map.get(&x)
+               .expect("Unexpected missing index")
+               .clone()
+        })
+        .collect()
+}
+
 /// Select the ranks for a provided embedding. Essentially applies a filter which selects all ranks
 /// for the current gene index
 pub fn select_ranks(current_idx: usize, encodings: &[usize], ranks: &Array1<f64>) -> Array1<f64> {
@@ -174,5 +185,16 @@ mod testing {
         let obs = 0.3;
         let null = Array1::random((size,), Uniform::new(0., 1.));
         empirical_cdf(obs, &null);
+    }
+
+    #[test]
+    fn test_recoding() {
+        let names = vec!["g.0", "g.1", "g.0", "g.2"]
+            .iter()
+            .map(|x| (*x).to_string())
+            .collect();
+        let (encode_map, _encoding) = encode_index(&names);
+        let recoded = super::recode_index(3, &encode_map);
+        assert_eq!(recoded, vec!["g.0", "g.1", "g.2"]);
     }
 }
