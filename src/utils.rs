@@ -186,10 +186,10 @@ mod testing {
 
     #[test]
     fn test_empirical_cdf() {
-        let size = 100;
         let obs = 0.3;
-        let null = Array1::random((size,), Uniform::new(0., 1.));
-        empirical_cdf(obs, &null);
+        let null = Array1::range(0., 1., 0.01);
+        let cdf = empirical_cdf(obs, &null);
+        assert_eq!(cdf, 0.31683168316831684);
     }
 
     #[test]
