@@ -1,6 +1,6 @@
 use crate::{utils::recode_index, ResultsRRA};
 use adjustp::Procedure;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use hashbrown::HashMap;
 use ndarray::Array1;
 
@@ -102,7 +102,6 @@ fn calculate_empirical_pvalues(
 
 /// A struct to perform the Alpha RRA Algorithm
 pub struct AlphaRRA {
-
     /// A map of the gene names to their index
     encode_map: HashMap<usize, String>,
 
@@ -125,7 +124,6 @@ pub struct AlphaRRA {
     permutation_vectors: HashMap<usize, Array1<f64>>,
 }
 impl AlphaRRA {
-
     /// Creates a new AlphaRRA struct
     ///
     /// # Arguments
@@ -133,21 +131,12 @@ impl AlphaRRA {
     /// * `alpha` - The alpha threshold value
     /// * `n_permutations` - The number of permutations
     /// * `correction` - The correction method
-    pub fn new(
-        genes: &[String],
-        alpha: f64,
-        n_permutations: usize,
-        correction: Procedure,
-    ) -> Self {
+    pub fn new(genes: &[String], alpha: f64, n_permutations: usize, correction: Procedure) -> Self {
         let (encode_map, encode) = encode_index(genes);
         let n_genes = encode_map.len();
         let n_permutations = n_permutations * n_genes;
-        let permutation_vectors = generate_permutation_vectors(
-            n_genes,
-            alpha,
-            n_permutations,
-            &group_sizes(&encode),
-        );
+        let permutation_vectors =
+            generate_permutation_vectors(n_genes, alpha, n_permutations, &group_sizes(&encode));
         Self {
             encode_map,
             encode,
