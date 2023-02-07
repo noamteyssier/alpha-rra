@@ -1,5 +1,6 @@
 use crate::{utils::recode_index, ResultsRRA};
 use adjustp::Procedure;
+use anyhow::{bail, Result};
 use hashbrown::HashMap;
 use ndarray::Array1;
 
@@ -99,39 +100,105 @@ fn calculate_empirical_pvalues(
     (scores, pvalues)
 }
 
-/// Performs the alpha-RRA algorithm
-#[must_use]
-pub fn alpha_rra(
-    pvalues: &Array1<f64>,
-    genes: &[String],
+/// A struct to perform the Alpha RRA Algorithm
+pub struct AlphaRRA {
+    /// A map of the gene names to their index
+    encode_map: HashMap<usize, String>,
+
+    /// The encodings (i.e. gene indices)
+    encode: Vec<usize>,
+
+    /// The alpha threshold value
     alpha: f64,
-    npermutations: usize,
+
+    /// The number of permutations
+    n_permutations: usize,
+
+    /// The correction method
     correction: Procedure,
-) -> ResultsRRA {
-    // encode the gene names
-    let (encode_map, encode) = encode_index(genes);
-    let n_genes = encode_map.len();
 
-    // calculate the normalized ranks
-    let nranks = normed_ranks(pvalues);
+    /// The number of unique genes
+    n_genes: usize,
 
-    // group the sizes of the gene sets
-    let sizes = group_sizes(&encode);
+    /// The permutation vectors (i.e. random samplings and their alpha RRA scores)
+    permutation_vectors: HashMap<usize, Array1<f64>>,
+}
+impl AlphaRRA {
+    /// Creates a new AlphaRRA struct
+    ///
+    /// # Arguments
+    /// * `genes` - The gene names
+    /// * `alpha` - The alpha threshold value
+    /// * `n_permutations` - The number of permutations
+    /// * `correction` - The correction method
+    pub fn new(genes: &[String], alpha: f64, n_permutations: usize, correction: Procedure) -> Self {
+        let (encode_map, encode) = encode_index(genes);
+        let n_genes = encode_map.len();
+        let n_permutations = n_permutations * n_genes;
+        let permutation_vectors =
+            generate_permutation_vectors(n_genes, alpha, n_permutations, &group_sizes(&encode));
+        Self {
+            encode_map,
+            encode,
+            alpha,
+            n_permutations,
+            correction,
+            n_genes,
+            permutation_vectors,
+        }
+    }
 
-    // set the number of permutations
-    let num_permutations = npermutations * n_genes;
+    /// Runs the Alpha RRA Algorithm for a given set of p-values
+    ///
+    /// # Arguments
+    /// * `pvalues` - The p-values
+    ///
+    /// # Returns
+    /// A ResultsRRA struct
+    pub fn run(&self, pvalues: &Array1<f64>) -> Result<ResultsRRA> {
+        if pvalues.len() != self.encode.len() {
+            bail!("The number of p-values does not match the number of sgRNAs in the library");
+        }
+        let nranks = normed_ranks(pvalues);
+        let (scores, pvalues) = calculate_empirical_pvalues(
+            self.n_genes,
+            &self.encode,
+            &nranks,
+            &self.permutation_vectors,
+            self.alpha,
+        );
+        let names = recode_index(self.n_genes, &self.encode_map);
+        let result = ResultsRRA::new(names, scores, pvalues, self.correction);
+        Ok(result)
+    }
 
-    // calculate rra scores for a vector of random samplings for each unique size
-    let permutation_vectors =
-        generate_permutation_vectors(n_genes, alpha, num_permutations, &sizes);
+    /// Returns the encode map
+    pub fn encode_map(&self) -> &HashMap<usize, String> {
+        &self.encode_map
+    }
 
-    // calculate empirical pvalues for each of the gene sets given the random nulls
-    let (scores, pvalues) =
-        calculate_empirical_pvalues(n_genes, &encode, &nranks, &permutation_vectors, alpha);
+    /// Returns the encodings (i.e. gene indices)
+    pub fn encode(&self) -> &Vec<usize> {
+        &self.encode
+    }
 
-    // recode the gene names
-    let names = recode_index(n_genes, &encode_map);
+    /// Returns the alpha threshold value
+    pub fn alpha(&self) -> f64 {
+        self.alpha
+    }
 
-    // return the results
-    ResultsRRA::new(names, scores, pvalues, correction)
+    /// Returns the number of permutations
+    pub fn n_permutations(&self) -> usize {
+        self.n_permutations
+    }
+
+    /// Returns the number of unique genes
+    pub fn n_genes(&self) -> usize {
+        self.n_genes
+    }
+
+    /// Returns the permutation vectors (i.e. random samplings and their alpha RRA scores)
+    pub fn permutation_vectors(&self) -> &HashMap<usize, Array1<f64>> {
+        &self.permutation_vectors
+    }
 }
