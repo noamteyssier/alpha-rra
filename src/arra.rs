@@ -59,13 +59,14 @@ fn generate_permutation_vectors(
     alpha: f64,
     npermutations: usize,
     sizes: &Vec<usize>,
+    seed: u64,
 ) -> HashMap<usize, Array1<f64>> {
     sizes
         .iter()
         .map(|unique_size| {
             (
                 *unique_size,
-                run_permutations(n_genes, alpha, npermutations, *unique_size),
+                run_permutations(n_genes, alpha, npermutations, *unique_size, seed),
             )
         })
         .map(|(u, v)| (u, Array1::from_vec(v)))
@@ -122,6 +123,9 @@ pub struct AlphaRRA {
 
     /// The permutation vectors (i.e. random samplings and their alpha RRA scores)
     permutation_vectors: HashMap<usize, Array1<f64>>,
+
+    /// The random seed to use in generating permutation vectors
+    seed: u64,
 }
 impl AlphaRRA {
     /// Creates a new AlphaRRA struct
@@ -131,12 +135,23 @@ impl AlphaRRA {
     /// * `alpha` - The alpha threshold value
     /// * `n_permutations` - The number of permutations
     /// * `correction` - The correction method
-    pub fn new(genes: &[String], alpha: f64, n_permutations: usize, correction: Procedure) -> Self {
+    pub fn new(
+        genes: &[String],
+        alpha: f64,
+        n_permutations: usize,
+        correction: Procedure,
+        seed: u64,
+    ) -> Self {
         let (encode_map, encode) = encode_index(genes);
         let n_genes = encode_map.len();
         let n_permutations = n_permutations * n_genes;
-        let permutation_vectors =
-            generate_permutation_vectors(n_genes, alpha, n_permutations, &group_sizes(&encode));
+        let permutation_vectors = generate_permutation_vectors(
+            n_genes,
+            alpha,
+            n_permutations,
+            &group_sizes(&encode),
+            seed,
+        );
         Self {
             encode_map,
             encode,
@@ -145,6 +160,7 @@ impl AlphaRRA {
             correction,
             n_genes,
             permutation_vectors,
+            seed,
         }
     }
 
@@ -200,5 +216,10 @@ impl AlphaRRA {
     /// Returns the permutation vectors (i.e. random samplings and their alpha RRA scores)
     pub fn permutation_vectors(&self) -> &HashMap<usize, Array1<f64>> {
         &self.permutation_vectors
+    }
+
+    /// Returns the seed used in generating the permutation vectors
+    pub fn seed(&self) -> u64 {
+        self.seed
     }
 }

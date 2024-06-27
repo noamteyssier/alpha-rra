@@ -1,6 +1,10 @@
 use super::{filter_alpha, robust_rank_aggregation};
 use ndarray::Array1;
-use ndarray_rand::{rand_distr::Uniform, RandomExt};
+use ndarray_rand::{
+    rand::{Rng, SeedableRng},
+    rand_distr::Uniform,
+};
+use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 
 /// Sample a vector of normalized ranks given the number of ranks and the number of samples
@@ -11,10 +15,11 @@ use rayon::prelude::*;
 ///
 /// # Returns
 /// A vector of normalized ranks
-fn sample_normed_ranks(num_ranks: usize, num_samples: usize) -> Array1<f64> {
-    Array1::random((num_samples,), Uniform::new(1usize, num_ranks + 1))
-        .iter()
-        .map(|x| *x as f64 / num_ranks as f64)
+fn sample_normed_ranks(num_ranks: usize, num_samples: usize, idx: usize, seed: u64) -> Array1<f64> {
+    let rng = ChaCha8Rng::seed_from_u64(seed + idx as u64);
+    rng.sample_iter(Uniform::new(1usize, num_ranks + 1))
+        .take(num_samples)
+        .map(|x| x as f64 / num_ranks as f64)
         .collect()
 }
 
@@ -34,10 +39,11 @@ pub fn run_permutations(
     alpha: f64,
     npermutations: usize,
     unique_size: usize,
+    seed: u64,
 ) -> Vec<f64> {
     (0..npermutations)
         .into_par_iter()
-        .map(|_| sample_normed_ranks(num_ranks, unique_size))
+        .map(|idx| sample_normed_ranks(num_ranks, unique_size, idx, seed))
         .map(|choices| filter_alpha(&choices, alpha))
         .map(|filtered| robust_rank_aggregation(&filtered, unique_size))
         .collect()
@@ -57,7 +63,7 @@ mod testing {
         let num_samples = 100;
         let alpha = 0.3;
         let npermutations = 1000;
-        let permutations = run_permutations(num_samples, alpha, npermutations, unique_size);
+        let permutations = run_permutations(num_samples, alpha, npermutations, unique_size, 0);
         assert_eq!(permutations.len(), npermutations);
     }
 
@@ -73,6 +79,22 @@ mod testing {
             assert_eq!(nranks.len(), size);
             assert!((&nranks).max() <= 1.);
             assert!(nranks.min() > 0.);
+        }
+    }
+
+    #[test]
+    fn seeded_normed_ranks() {
+        let num_samples = 100;
+        let size = 5;
+        let seed = 0;
+        let ranks_1 = super::sample_normed_ranks(num_samples, size, 0, seed);
+        for _ in 0..100 {
+            let ranks_2 = super::sample_normed_ranks(num_samples, size, 0, seed);
+            assert_eq!(ranks_1, ranks_2);
+        }
+        for _ in 0..100 {
+            let ranks_3 = super::sample_normed_ranks(num_samples, size, 1, seed);
+            assert_ne!(ranks_1, ranks_3);
         }
     }
 }
