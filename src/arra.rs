@@ -58,7 +58,7 @@ fn generate_permutation_vectors(
     n_genes: usize,
     alpha: f64,
     npermutations: usize,
-    sizes: &Vec<usize>,
+    sizes: &[usize],
     seed: u64,
 ) -> HashMap<usize, Array1<f64>> {
     sizes
@@ -94,7 +94,7 @@ fn calculate_empirical_pvalues(
     let mut scores = Array1::zeros(n_genes);
     let mut pvalues = Array1::zeros(n_genes);
     (0..n_genes).for_each(|curr| {
-        let (score, pvalue) = gene_rra(curr, &encode, &nranks, &permutation_vectors, alpha);
+        let (score, pvalue) = gene_rra(curr, encode, nranks, permutation_vectors, alpha);
         scores[curr] = score;
         pvalues[curr] = pvalue;
     });
