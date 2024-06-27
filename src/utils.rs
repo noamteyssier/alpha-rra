@@ -113,7 +113,7 @@ mod testing {
 
     #[test]
     fn test_encoding() {
-        let names = vec!["g.0", "g.1", "g.0", "g.2"]
+        let names = ["g.0", "g.1", "g.0", "g.2"]
             .iter()
             .map(|x| (*x).to_string())
             .collect::<Vec<String>>();
@@ -165,7 +165,7 @@ mod testing {
     #[test]
     fn test_group_sizes() {
         let groups = vec![0, 0, 1, 1, 1, 2];
-        let truth = vec![2, 3, 1];
+        let truth = [2, 3, 1];
         let sizes = group_sizes(&groups);
         truth.iter().for_each(|x| assert!(sizes.contains(x)));
         assert_eq!(sizes.len(), 3);
@@ -194,7 +194,7 @@ mod testing {
 
     #[test]
     fn test_recoding() {
-        let names = vec!["g.0", "g.1", "g.0", "g.2"]
+        let names = ["g.0", "g.1", "g.0", "g.2"]
             .iter()
             .map(|x| (*x).to_string())
             .collect::<Vec<String>>();
