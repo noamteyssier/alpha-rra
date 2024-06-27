@@ -1,6 +1,6 @@
 [package]
 name = "alpha-rra"
-version = "0.1.5"
+version = "0.2.0"
 edition = "2021"
 description = "An implementation of the Alpha-RRA algorithm for p-value aggregation on groups of genes"
 license = "MIT"
