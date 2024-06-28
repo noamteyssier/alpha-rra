@@ -1,6 +1,6 @@
 [package]
 name = "alpha-rra"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "An implementation of the Alpha-RRA algorithm for p-value aggregation on groups of genes"
 license = "MIT"
@@ -12,7 +12,7 @@ categories = ["science"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-adjustp = "0.1.4"
+adjustp = "0.1.6"
 anyhow = "1.0.62"
 hashbrown = "0.14.5"
 ndarray = "0.15.6"
