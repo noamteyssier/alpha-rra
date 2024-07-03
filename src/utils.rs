@@ -1,6 +1,8 @@
 use hashbrown::{HashMap, HashSet};
 use ndarray::Array1;
 
+use crate::robust_rank::sort_array;
+
 /// return the indices to sort a provided array of floats
 #[must_use]
 pub fn argsort<A: PartialOrd>(array: &Array1<A>) -> Array1<usize> {
@@ -52,6 +54,12 @@ pub fn group_sizes(array: &[usize]) -> Vec<usize> {
 #[must_use]
 pub fn filter_alpha(array: &Array1<f64>, alpha: f64) -> Array1<f64> {
     array.iter().filter(|x| **x < alpha).copied().collect()
+}
+
+/// Returns the subarray of ranks above the provided rank
+pub fn filter_ranks(array: &Array1<f64>, rank: usize) -> Array1<f64> {
+    let sorted_array = sort_array(array);
+    sorted_array.iter().take(rank).copied().collect()
 }
 
 #[must_use]
