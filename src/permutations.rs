@@ -1,3 +1,5 @@
+use crate::utils::filter_ranks;
+
 use super::{filter_alpha, robust_rank_aggregation};
 use ndarray::Array1;
 use ndarray_rand::{
@@ -34,7 +36,7 @@ fn sample_normed_ranks(num_ranks: usize, num_samples: usize, idx: usize, seed: u
 /// # Returns
 /// A vector of the robust rank aggregation values
 #[must_use]
-pub fn run_permutations(
+pub fn run_alpha_permutations(
     num_ranks: usize,
     alpha: f64,
     npermutations: usize,
@@ -49,9 +51,36 @@ pub fn run_permutations(
         .collect()
 }
 
+/// Perform the robust rank aggregation algorithm on a permuted set of normalized ranks,
+/// considering only the top n performing values
+///
+/// # Arguments
+/// * `num_ranks` - The number of ranks
+/// * `n` - The number of top performing values to consider
+/// * `npermutations` - The number of permutations
+/// * `unique_size` - The number of unique values
+///
+/// # Returns
+/// A vector of the robust rank aggregation values
+#[must_use]
+pub fn run_heuristic_permutations(
+    num_ranks: usize,
+    n: usize,
+    npermutations: usize,
+    unique_size: usize,
+    seed: u64,
+) -> Vec<f64> {
+    (0..npermutations)
+        .into_par_iter()
+        .map(|idx| sample_normed_ranks(num_ranks, unique_size, idx, seed))
+        .map(|choices| filter_ranks(&choices, n))
+        .map(|filtered| robust_rank_aggregation(&filtered, unique_size))
+        .collect()
+}
+
 #[cfg(test)]
 mod testing {
-    use super::run_permutations;
+    use super::run_alpha_permutations;
     use ndarray::Array1;
     use ndarray_rand::rand_distr::Uniform;
     use ndarray_rand::RandomExt;
@@ -63,7 +92,8 @@ mod testing {
         let num_samples = 100;
         let alpha = 0.3;
         let npermutations = 1000;
-        let permutations = run_permutations(num_samples, alpha, npermutations, unique_size, 0);
+        let permutations =
+            run_alpha_permutations(num_samples, alpha, npermutations, unique_size, 0);
         assert_eq!(permutations.len(), npermutations);
     }
 
