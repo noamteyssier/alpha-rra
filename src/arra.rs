@@ -1,6 +1,7 @@
 use crate::{utils::recode_index, ResultsRRA};
 use adjustp::Procedure;
 use anyhow::{bail, Result};
+use getset::Getters;
 use hashbrown::HashMap;
 use ndarray::Array1;
 
@@ -102,29 +103,40 @@ fn calculate_empirical_pvalues(
 }
 
 /// A struct to perform the Alpha RRA Algorithm
+#[derive(Getters)]
 pub struct AlphaRRA {
     /// A map of the gene names to their index
+    #[getset(get = "pub")]
     encode_map: HashMap<usize, String>,
 
     /// The encodings (i.e. gene indices)
+    #[getset(get = "pub")]
     encode: Vec<usize>,
 
     /// The alpha threshold value
+    #[getset(get_copy = "pub")]
     alpha: f64,
 
     /// The number of permutations
+    #[allow(dead_code)]
+    #[getset(get_copy = "pub")]
     n_permutations: usize,
 
     /// The correction method
+    #[getset(get_copy = "pub")]
     correction: Procedure,
 
     /// The number of unique genes
+    #[getset(get_copy = "pub")]
     n_genes: usize,
 
     /// The permutation vectors (i.e. random samplings and their alpha RRA scores)
+    #[getset(get = "pub")]
     permutation_vectors: HashMap<usize, Array1<f64>>,
 
     /// The random seed to use in generating permutation vectors
+    #[allow(dead_code)]
+    #[getset(get_copy = "pub")]
     seed: u64,
 }
 impl AlphaRRA {
@@ -186,40 +198,5 @@ impl AlphaRRA {
         let names = recode_index(self.n_genes, &self.encode_map);
         let result = ResultsRRA::new(names, scores, pvalues, self.correction);
         Ok(result)
-    }
-
-    /// Returns the encode map
-    pub fn encode_map(&self) -> &HashMap<usize, String> {
-        &self.encode_map
-    }
-
-    /// Returns the encodings (i.e. gene indices)
-    pub fn encode(&self) -> &Vec<usize> {
-        &self.encode
-    }
-
-    /// Returns the alpha threshold value
-    pub fn alpha(&self) -> f64 {
-        self.alpha
-    }
-
-    /// Returns the number of permutations
-    pub fn n_permutations(&self) -> usize {
-        self.n_permutations
-    }
-
-    /// Returns the number of unique genes
-    pub fn n_genes(&self) -> usize {
-        self.n_genes
-    }
-
-    /// Returns the permutation vectors (i.e. random samplings and their alpha RRA scores)
-    pub fn permutation_vectors(&self) -> &HashMap<usize, Array1<f64>> {
-        &self.permutation_vectors
-    }
-
-    /// Returns the seed used in generating the permutation vectors
-    pub fn seed(&self) -> u64 {
-        self.seed
     }
 }
