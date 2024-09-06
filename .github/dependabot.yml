@@ -5,8 +5,11 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "cargo"
+    directory: "/" 
     schedule:
       interval: "weekly"
     versioning-strategy: "auto"
+    allow:
+      - dependency-type: "direct"
+        update-type: "semver:minor"
