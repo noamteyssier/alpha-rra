@@ -10,6 +10,3 @@ updates:
     schedule:
       interval: "weekly"
     versioning-strategy: "auto"
-    allow:
-      - dependency-type: "direct"
-        update-type: "semver:minor"
